@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  # Config Server Replica Set
+  configsvr1:
+    image: mongo:7.0
+    container_name: configsvr1
+    command: mongod --configsvr --replSet configReplSet --port 27019 --bind_ip_all
+    volumes:
+      - configsvr1_data:/data/db
+    networks:
+      - mongo-shard-net
+
+  configsvr2:
+    image: mongo:7.0
+    container_name: configsvr2
+    command: mongod --configsvr --replSet configReplSet --port 27019 --bind_ip_all
+    volumes:
+      - configsvr2_data:/data/db
+    networks:
+      - mongo-shard-net
+
+  configsvr3:
+    image: mongo:7.0
+    container_name: configsvr3
+    command: mongod --configsvr --replSet configReplSet --port 27019 --bind_ip_all
+    volumes:
+      - configsvr3_data:/data/db
+    networks:
+      - mongo-shard-net
+
+  # Shard 1 Replica Set
+  shard1:
+    image: mongo:7.0
+    container_name: shard1
+    command: mongod --shardsvr --replSet shard1ReplSet --port 27018 --bind_ip_all
+    volumes:
+      - shard1_data:/data/db
+    networks:
+      - mongo-shard-net
+
+  # Shard 2 Replica Set
+  shard2:
+    image: mongo:7.0
+    container_name: shard2
+    command: mongod --shardsvr --replSet shard2ReplSet --port 27018 --bind_ip_all
+    volumes:
+      - shard2_data:/data/db
+    networks:
+      - mongo-shard-net
+
+  # Shard 3 Replica Set
+  shard3:
+    image: mongo:7.0
+    container_name: shard3
+    command: mongod --shardsvr --replSet shard3ReplSet --port 27018 --bind_ip_all
+    volumes:
+      - shard3_data:/data/db
+    networks:
+      - mongo-shard-net
+
+  # Mongos Router
+  mongos:
+    image: mongo:7.0
+    container_name: mongos
+    command: mongos --configdb configReplSet/configsvr1:27019,configsvr2:27019,configsvr3:27019 --bind_ip_all
+    ports:
+      - "27017:27017"
+    depends_on:
+      - configsvr1
+      - configsvr2
+      - configsvr3
+      - shard1
+      - shard2
+      - shard3
+    networks:
+      - mongo-shard-net
+
+networks:
+  mongo-shard-net:
+    driver: bridge
+
+volumes:
+  configsvr1_data:
+  configsvr2_data:
+  configsvr3_data:
+  shard1_data:
+  shard2_data:
+  shard3_data: 
