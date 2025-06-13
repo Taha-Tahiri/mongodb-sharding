@@ -14,7 +14,7 @@ Si Docker est déjà installé et que vous voulez démarrer rapidement :
 
 ```bash
 # 1. Aller dans le répertoire du projet
-cd sharding_mongodb_project
+cd mongodb-sharding
 
 # 2. Rendre les scripts exécutables
 chmod +x *.sh
@@ -30,11 +30,15 @@ sudo ./docker-init-shard.sh
 sudo ./docker-demo-shard.sh
 
 # 6. Se connecter au cluster
-sudo docker exec -it mongos mongosh
+sleep 10 && sudo docker exec -it mongos mongosh
+
 
 # Une fois connecté :
-use mystore
-db.products.find().limit(5)
+use boutique_en_ligne
+db.produits.find().limit(5)
+db.clients.find({ nom: "Richard" }).explain("executionStats")
+db.commandes.find({ _id: 1000 }).explain("executionStats")
+
 sh.status()
 ```
 
